@@ -136,11 +136,11 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
         return allPhotos.filter(p => p.album === activeAlbum);
     }, [allPhotos, activeAlbum]);
 
-    // Helper for deep cloning frames
-    const cloneFrames = (frames: FrameItem[]): FrameItem[] => JSON.parse(JSON.stringify(frames));
-
+    // Optimized: Use spread for shallow copy instead of slow JSON methods
     const pushHistory = (newFrames: FrameItem[]) => {
-        const nextFrames = cloneFrames(newFrames);
+        // Deep clone is not strictly necessary if we ensure immutability elsewhere,
+        // but to be safe without JSON.parse, we map and spread.
+        const nextFrames = newFrames.map(f => ({ ...f }));
         const newHistory = history.slice(0, historyIndex + 1);
         newHistory.push(nextFrames);
         if (newHistory.length > 50) newHistory.shift();
@@ -288,13 +288,13 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                             exit={{ opacity: 0 }}
                             className={`absolute inset-0 z-0 bg-black flex items-center justify-center transition-all duration-500 w-full`}
                         >
-                            {/* Blurred background for fitting */}
-                            <div className="absolute inset-0 z-0">
+                            {/* Blurred background for fitting - Hidden on mobile for performance */}
+                            <div className="absolute inset-0 z-0 hidden md:block">
                                 <Image src={customRoomSrc} alt="" fill className="object-cover opacity-30 blur-2xl scale-110" sizes="10vw" />
                             </div>
                             {/* Main contained image - NO PADDING to maximize fit */}
                             <div className="relative w-full h-full flex items-center justify-center">
-                                <Image src={customRoomSrc} alt="Custom Room" fill className="object-contain" sizes="100vw" />
+                                <Image src={customRoomSrc} alt="Custom Room" fill className="object-contain" sizes="(max-width: 768px) 100vw, 80vw" priority />
                             </div>
                             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
                         </motion.div>
@@ -368,7 +368,7 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                                             e.stopPropagation();
                                             if (!isPreview) setSelectedFrameId(item.id);
                                         }}
-                                        className={`absolute pointer-events-auto ${isPreview ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} group ${fStyle.depth} ${fStyle.matColor}`}
+                                        className={`absolute pointer-events-auto will-change-transform ${isPreview ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} group ${fStyle.depth} ${fStyle.matColor}`}
                                         style={{
                                             boxShadow: selected ? '0 0 0 2px rgba(255,255,255,0.5), 0 20px 40px rgba(0,0,0,0.4)' : undefined
                                         }}

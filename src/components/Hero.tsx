@@ -53,7 +53,6 @@ export default function Hero() {
                     src={heroData.bgImage}
                     alt="Hero Background"
                     fill
-                    priority
                     quality={95}
                     sizes="100vw"
                     style={{ objectFit: 'cover' }}

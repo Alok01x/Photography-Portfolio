@@ -110,6 +110,8 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
     }
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <div className="fixed top-8 left-0 w-full z-[1000] flex justify-center px-4 pointer-events-none">
       <motion.nav
@@ -122,14 +124,32 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
         {/* Subtle inner glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/5 to-transparent pointer-events-none rounded-full" />
 
-        {/* Nav Items */}
-        <div className="flex items-center gap-0.5 md:gap-1 bg-foreground/5 p-1 rounded-full border border-foreground/5">
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-foreground/10 text-foreground relative z-20"
+        >
+          <AnimatePresence mode="wait">
+            {isMobileMenuOpen ? (
+              <motion.svg key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </motion.svg>
+            ) : (
+              <motion.svg key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+              </motion.svg>
+            )}
+          </AnimatePresence>
+        </button>
+
+        {/* Desktop Nav Items (Hide on mobile menu open if needed, but here we just hide on small screens) */}
+        <div className="hidden md:flex items-center gap-1 bg-foreground/5 p-1 rounded-full border border-foreground/5">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={link.href === '/#gallery' ? handleGalleryClick : undefined}
-              className="relative px-2.5 md:px-4 py-2 text-[0.65rem] md:text-[0.7rem] tracking-[0.1em] uppercase font-medium group transition-all"
+              className="relative px-4 py-2 text-[0.7rem] tracking-[0.1em] uppercase font-medium group transition-all"
             >
               <span className={`relative z-10 transition-colors duration-300 ${isActive(link.href) ? 'text-background font-bold' : 'text-foreground/50 group-hover:text-foreground/80'
                 }`}>
@@ -144,7 +164,6 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
                 />
               )}
 
-              {/* Hover effect (if not active) */}
               <motion.div
                 className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 rounded-full transition-opacity"
                 whileHover={{ scale: 1.05 }}
@@ -153,16 +172,42 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
           ))}
         </div>
 
+        {/* Mobile Expanding Menu Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="absolute top-[120%] left-0 w-full bg-background/95 backdrop-blur-3xl border border-foreground/10 rounded-[2.5rem] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col gap-1.5 md:hidden z-50"
+            >
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => {
+                    if (link.href === '/#gallery') handleGalleryClick(e);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`px-6 py-4 rounded-2xl text-xs uppercase tracking-[0.2em] font-black transition-all ${isActive(link.href) ? 'bg-foreground text-background' : 'bg-foreground/5 text-foreground/50'}`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Theme Toggle */}
         <div className="flex items-center gap-0.5 bg-foreground/10 p-1 rounded-full border border-foreground/5">
           {themes.map((t) => (
             <button
               key={t.id}
               onClick={() => onThemeChange?.(t.id)}
-              className={`relative w-8 h-8 flex items-center justify-center rounded-full transition-all ${currentTheme === t.id ? 'bg-foreground/10' : 'hover:bg-foreground/5'
+              className={`relative w-8 h-8 flex items-center justify-center rounded-full transition-all ${currentTheme === t.id ? 'bg-foreground/10 font-bold scale-110' : 'hover:bg-foreground/5 opacity-40 hover:opacity-100'
                 }`}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-4 h-4 z-10 ${currentTheme === t.id ? t.color : 'text-foreground/30'}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-3.5 h-3.5 z-10 ${currentTheme === t.id ? t.color : 'text-foreground/30'}`}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={t.icon} />
               </svg>
               {currentTheme === t.id && (
@@ -199,8 +244,6 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
               </svg>
             )}
-
-            {/* Mirror reflection */}
             <div className="absolute inset-0 bg-gradient-to-tr from-foreground/20 via-transparent to-transparent pointer-events-none" />
           </Link>
         </motion.div>

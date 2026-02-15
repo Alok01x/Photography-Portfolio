@@ -242,6 +242,7 @@ export default function AlbumsManagement() {
                                         alt={photo.alt}
                                         fill
                                         className="object-cover"
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
                                     />
 
                                     {photo.is_cover && (

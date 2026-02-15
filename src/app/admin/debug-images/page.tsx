@@ -77,6 +77,7 @@ export default function ImageDebugPage() {
                                     className="object-contain"
                                     onError={(e) => handleImageError(photo.id, 'Next.js Image failed')}
                                     onLoad={() => console.log(`Image ${photo.id} loaded successfully`)}
+                                    sizes="(max-width: 768px) 100vw, 500px"
                                 />
                             </div>
                             {imageErrors[photo.id] && (

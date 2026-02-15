@@ -222,7 +222,7 @@ export default function SettingsPage() {
                                 <div className="space-y-3">
                                     <div className="relative w-32 h-32 rounded-full overflow-hidden bg-white/5 border border-white/10">
                                         {profileImagePreview ? (
-                                            <Image src={profileImagePreview} alt="Profile" fill className="object-cover" />
+                                            <Image src={profileImagePreview} alt="Profile" fill className="object-cover" sizes="128px" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-white/20">
                                                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +353,7 @@ export default function SettingsPage() {
                                 <div className="space-y-4">
                                     {heroImagePreview && (
                                         <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                                            <Image src={heroImagePreview} alt="Hero Background" fill className="object-cover" />
+                                            <Image src={heroImagePreview} alt="Hero Background" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
                                         </div>
                                     )}
                                     <label className="inline-block px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm cursor-pointer transition-colors">
@@ -453,7 +453,7 @@ export default function SettingsPage() {
                             <div className="space-y-4">
                                 {aboutImagePreview && (
                                     <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                                        <Image src={aboutImagePreview} alt="About" fill className="object-cover" />
+                                        <Image src={aboutImagePreview} alt="About" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
                                     </div>
                                 )}
                                 <label className="inline-block px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm cursor-pointer transition-colors">

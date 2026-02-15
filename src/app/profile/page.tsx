@@ -78,6 +78,7 @@ export default function ProfilePage() {
                                     alt={profileData.name}
                                     fill
                                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    sizes="(max-width: 1024px) 100vw, 40vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent flex items-end p-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                     <span className="text-foreground/60 text-xs uppercase tracking-[0.5em] font-medium">{profileData.role}</span>

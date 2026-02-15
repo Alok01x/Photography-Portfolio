@@ -199,7 +199,6 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
     };
 
     const removeFrame = (id: string) => {
-        if (currentFrames.length <= 1) return;
         const next = currentFrames.filter(f => f.id !== id);
         pushHistory(next);
         if (selectedFrameId === id) setSelectedFrameId(next[0]?.id || null);
@@ -267,7 +266,7 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10001] bg-black flex flex-col items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[10001] bg-black flex flex-col md:flex-row overflow-hidden"
             onClick={() => {
                 if (!isPreview) {
                     setSelectedFrameId(null);
@@ -275,19 +274,32 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                 }
             }}
         >
-            {/* INTERACTIVE BACKGROUND CANVAS */}
-            <div className="absolute inset-0 bg-neutral-900 transition-colors duration-1000 overflow-hidden">
+            {/* LEFT SECTION: INTERACTIVE VISUALS */}
+            <div className="relative w-full h-[45%] md:h-full md:flex-1 bg-neutral-900 touch-none transition-all duration-700 overflow-hidden flex items-center justify-center">
                 <div ref={constraintsRef} className="absolute inset-[-100%] z-0" />
 
                 {/* 1. ROOM LAYERS */}
                 <AnimatePresence mode="wait">
                     {customRoomSrc ? (
-                        <motion.div key="uploaded-room" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-0">
-                            <Image src={customRoomSrc} alt="Custom Room" fill className="object-cover" priority />
-                            <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+                        <motion.div
+                            key="uploaded-room"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className={`absolute inset-0 z-0 bg-black flex items-center justify-center transition-all duration-500 w-full`}
+                        >
+                            {/* Blurred background for fitting */}
+                            <div className="absolute inset-0 z-0">
+                                <Image src={customRoomSrc} alt="" fill className="object-cover opacity-30 blur-2xl scale-110" sizes="10vw" />
+                            </div>
+                            {/* Main contained image - NO PADDING to maximize fit */}
+                            <div className="relative w-full h-full flex items-center justify-center">
+                                <Image src={customRoomSrc} alt="Custom Room" fill className="object-contain" sizes="100vw" />
+                            </div>
+                            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
                         </motion.div>
                     ) : (
-                        <motion.div key="empty-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-neutral-950 z-10">
+                        <motion.div key="empty-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center gap-8 bg-neutral-950 z-10 transition-all duration-500">
                             <div className="w-40 h-40 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
                                 <svg className="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             </div>
@@ -305,7 +317,7 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
 
                 {/* 2. THE SMART INTERACTIVE STAGE */}
                 {customRoomSrc && (
-                    <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+                    <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none transition-all duration-500 w-full">
                         <AnimatePresence>
                             {currentFrames.map((item) => {
                                 const selected = selectedFrameId === item.id && !isPreview;
@@ -374,7 +386,7 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                                             className="relative"
                                         >
                                             <div className={`relative w-full overflow-hidden shadow-inner ${isFrameWide ? 'aspect-[3/2]' : isFrameTall ? 'aspect-[4/5]' : 'aspect-square'}`}>
-                                                <Image src={item.photo.src} alt={item.photo.alt} fill className="object-cover pointer-events-none" priority />
+                                                <Image src={item.photo.src} alt={item.photo.alt} fill className="object-cover pointer-events-none" sizes="(max-width: 768px) 50vw, 33vw" />
                                             </div>
                                         </motion.div>
 
@@ -418,57 +430,188 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                                 );
                             })}
                         </AnimatePresence>
+
+                        {!isPreview && (
+                            <div className="absolute top-6 sm:top-8 left-6 sm:left-10 z-[100] flex items-center gap-3 md:gap-6 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={onClose} className="group bg-black/40 backdrop-blur-3xl border border-white/10 p-4 sm:p-5 rounded-full hover:bg-white/10 transition-all shadow-2xl">
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-1 text-white/60 group-hover:text-white transition-all transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
+                                </button>
+                                <div className="flex flex-col">
+                                    <h2 className="text-[12px] sm:text-[16px] uppercase tracking-[0.6em] sm:tracking-[1em] text-white font-black italic">SMART STUDIO</h2>
+                                    <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.4em] sm:tracking-[0.5em] text-white/30 font-bold">Wall Visualizer</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {isPreview && (
+                            <div className="absolute top-6 right-6 z-[100] pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => setIsPreview(false)}
+                                    className="bg-black/50 backdrop-blur-md text-white px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest hover:bg-white/20 transition-all border border-white/10 shadow-2xl flex items-center gap-3"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Exit Preview
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
 
-            {/* ART PICKER HUD */}
+            {/* Sidebar Simple Replacement */}
+            {customRoomSrc && !showPhotoPicker && (
+                <div className={`relative w-full md:w-[400px] h-[55%] md:h-full bg-black z-[200] border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-none transition-all duration-500 ${isPreview ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`} onClick={(e) => e.stopPropagation()}>
+                    <div className="w-16 h-1 bg-white/20 rounded-full mx-auto mb-6 md:hidden flex-shrink-0" />
+
+                    <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide flex flex-col gap-10">
+                        {/* TOP ACTIONS */}
+                        <div className="grid grid-cols-6 gap-2 px-2 sm:px-4">
+                            <button onClick={() => { setShowPhotoPicker(true); setMultiSelectMode(true); }} className="col-span-2 bg-white text-black py-4 rounded-xl text-[10px] uppercase font-black tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                                Add Art
+                            </button>
+                            <button onClick={() => applyLayout('pair')} className="bg-white/10 text-white py-4 rounded-xl text-[10px] uppercase font-black tracking-widest hover:bg-white/20 transition-all border border-white/5">
+                                Pair
+                            </button>
+                            <button onClick={() => applyLayout('triptych')} className="bg-white/10 text-white py-4 rounded-xl text-[10px] uppercase font-black tracking-widest hover:bg-white/20 transition-all border border-white/5">
+                                Tri
+                            </button>
+
+                            {/* History & Preview */}
+                            <button onClick={undo} disabled={historyIndex <= 0} className={`rounded-xl flex items-center justify-center transition-all border border-white/5 ${historyIndex > 0 ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white/5 text-white/20'}`}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5" /></svg>
+                            </button>
+                            <button onClick={redo} disabled={historyIndex >= history.length - 1} className={`rounded-xl flex items-center justify-center transition-all border border-white/5 ${historyIndex < history.length - 1 ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white/5 text-white/20'}`}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 10H11a8 8 0 00-8 8v2M21 10l-5 5m5-5l-5-5" /></svg>
+                            </button>
+                        </div>
+
+                        <div className="px-2 sm:px-4 mt-2">
+                            <button onClick={() => setIsPreview(true)} className="w-full bg-white/5 text-white/60 py-3 rounded-xl text-[9px] uppercase font-black tracking-[0.2em] hover:bg-white/10 hover:text-white transition-all border border-white/5 flex items-center justify-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                Enter Preview Mode
+                            </button>
+                        </div>
+
+                        {selectedFrameId ? (
+                            <>
+                                <div className="flex justify-between items-center px-2 sm:px-4">
+                                    <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black">Size</p>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] font-black text-white/60 tabular-nums">
+                                            {Math.round((currentFrames.find(it => it.id === selectedFrameId)?.scale || 1) * 100)}%
+                                        </span>
+                                        <button onClick={() => updateFrame(selectedFrameId, { scale: 1.0 })} className="text-[9px] uppercase font-black tracking-widest text-white/30 hover:text-white transition-colors">Reset</button>
+                                    </div>
+                                </div>
+                                <input
+                                    type="range" min="0.2" max="3.0" step="0.01"
+                                    value={currentFrames.find(it => it.id === selectedFrameId)?.scale || 1}
+                                    onChange={(e) => updateFrame(selectedFrameId, { scale: parseFloat(e.target.value) }, false)}
+                                    onMouseUp={() => updateFrame(selectedFrameId, { scale: currentFrames.find(it => it.id === selectedFrameId)?.scale || 1 }, true)}
+                                    className="w-full accent-white h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                />
+                                <div className="flex justify-between mt-6">
+                                    {[{ label: 'S', val: 0.5 }, { label: 'M', val: 1.0 }, { label: 'L', val: 1.5 }, { label: 'XL', val: 2.5 }].map((p) => (
+                                        <button key={p.label} onClick={() => updateFrame(selectedFrameId, { scale: p.val })} className="w-14 h-14 bg-white/5 rounded-2xl text-[12px] font-black text-white/40 hover:bg-white/10">{p.label}</button>
+                                    ))}
+                                </div>
+
+                                {/* RATIO CONTROLS */}
+                                <div>
+                                    <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black mb-4">Ratio</p>
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {(['auto', 'square', 'wide', 'tall'] as const).map((ratio) => (
+                                            <button
+                                                key={ratio}
+                                                onClick={() => updateFrame(selectedFrameId, { aspectOverride: ratio })}
+                                                className={`py-3 rounded-xl text-[9px] uppercase font-bold tracking-widest transition-all ${(currentFrames.find(it => it.id === selectedFrameId)?.aspectOverride || 'auto') === ratio ? 'bg-white text-black font-black scale-[1.05] shadow-lg' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                            >
+                                                {ratio}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* SERIES SELECTION */}
+                                <div className="pb-10">
+                                    {['Modern', 'Wooden', 'Industrial', 'Gallery'].map((category) => (
+                                        <div key={category} className="mb-6">
+                                            <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black mb-3 ml-2">{category}</p>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                {Object.entries(FRAMES).filter(([_, conf]) => conf.category === category).map(([key, conf]) => (
+                                                    <button
+                                                        key={key}
+                                                        onClick={() => updateFrame(selectedFrameId, { style: key as FrameType })}
+                                                        className={`group relative w-full aspect-square rounded-xl overflow-hidden transition-all ${(currentFrames.find(it => it.id === selectedFrameId)?.style || 'canvas') === key
+                                                            ? 'ring-2 ring-white scale-105 shadow-xl'
+                                                            : 'opacity-50 hover:opacity-100 hover:scale-105'
+                                                            }`}
+                                                    >
+                                                        <div className={`absolute inset-0 ${conf.matColor}`} />
+                                                        <div className={`absolute inset-0 border-[4px] ${conf.border}`} />
+                                                        <div className="absolute inset-2 bg-neutral-900 shadow-inner" />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center flex-1 h-32 opacity-30">
+                                <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-white text-center">Select an art piece<br />to customize</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* OVERLAYS (Independent of Split) */}
             <AnimatePresence>
                 {showPhotoPicker && !isPreview && (
                     <motion.div
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 200, opacity: 0 }}
-                        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[200] w-[95vw] max-w-5xl bg-black/80 backdrop-blur-3xl border border-white/10 p-8 rounded-[40px] shadow-3xl flex flex-col gap-6"
+                        className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[300] w-[95vw] max-w-5xl bg-black/80 backdrop-blur-3xl border border-white/10 p-6 sm:p-10 rounded-[3rem] shadow-3xl flex flex-col gap-6"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex justify-between items-center px-4">
+                        <div className="flex justify-between items-center px-2 sm:px-4">
                             <div className="flex flex-col gap-4">
                                 <p className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-black">
-                                    Select Artwork
+                                    {multiSelectMode ? `Tap to Select (${selectedPhotos.length})` : 'Select Art'}
                                 </p>
-                                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                                <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
                                     {albumNames.map(name => (
                                         <button
                                             key={name}
                                             onClick={() => setActiveAlbum(name)}
-                                            className={`px-4 py-1.5 rounded-full text-[9px] uppercase font-bold tracking-widest transition-all whitespace-nowrap ${activeAlbum === name ? 'bg-white text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                            className={`px-5 py-2.5 rounded-full text-[9px] uppercase font-bold tracking-widest transition-all whitespace-nowrap ${activeAlbum === name ? 'bg-white text-black shadow-lg' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
                                         >
                                             {name}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <button onClick={() => setShowPhotoPicker(false)} className="text-white/40 hover:text-white transition-colors p-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                </button>
-                            </div>
+                            <button onClick={() => setShowPhotoPicker(false)} className="text-white/40 hover:text-white transition-colors p-4 bg-white/5 rounded-full">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
                         </div>
-                        <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 overflow-y-auto max-h-[40vh] scrollbar-hide px-2 pb-4">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-5 overflow-y-auto max-h-[40vh] scrollbar-hide px-2 pb-6">
                             {filteredPhotos.map((p) => {
                                 const isSelected = selectedPhotos.find(sp => sp.id === p.id);
                                 return (
                                     <button
                                         key={p.id}
                                         onClick={() => handleSwapPhoto(p)}
-                                        className={`relative aspect-square rounded-2xl overflow-hidden border transition-all hover:scale-105 active:scale-95 ${isSelected ? 'border-white border-4 p-1 ring-4 ring-white/20' : 'border-white/5 hover:border-white/40 shadow-xl'}`}
+                                        className={`relative aspect-square rounded-[1.5rem] overflow-hidden border transition-all hover:scale-105 active:scale-95 ${isSelected ? 'border-white border-4 p-1 ring-4 ring-white/20' : 'border-white/5 hover:border-white/40 shadow-xl'}`}
                                     >
-                                        <Image src={p.src} alt={p.alt} fill className="object-cover" />
+                                        <Image src={p.src} alt={p.alt} fill className="object-contain" sizes="(max-width: 640px) 33vw, 20vw" />
                                         {isSelected && (
                                             <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
-                                                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                                                    <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-2xl">
+                                                    <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                                                 </div>
                                             </div>
                                         )}
@@ -476,156 +619,17 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                                 );
                             })}
                         </div>
+                        {multiSelectMode && selectedPhotos.length > 0 && (
+                            <button
+                                onClick={handleAddSelectedPhotos}
+                                className="bg-white text-black w-full py-6 rounded-3xl text-[14px] font-black uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl"
+                            >
+                                Add {selectedPhotos.length} Pieces to Wall
+                            </button>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* AI HUD INTERFACE */}
-            {customRoomSrc && !showPhotoPicker && !isPreview && (
-                <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[100] flex gap-4 bg-black/40 backdrop-blur-3xl border border-white/10 p-2 rounded-full shadow-2xl scale-90 md:scale-100" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex gap-1 px-2">
-                        <button onClick={undo} disabled={historyIndex === 0} className={`p-2 transition-all ${historyIndex === 0 ? 'opacity-10 pointer-events-none' : 'text-white/60 hover:text-white hover:scale-110 active:scale-90'}`}>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5" /></svg>
-                        </button>
-                        <button onClick={redo} disabled={historyIndex === history.length - 1} className={`p-2 transition-all ${historyIndex === history.length - 1 ? 'opacity-10 pointer-events-none' : 'text-white/60 hover:text-white hover:scale-110 active:scale-90'}`}>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 10H11a8 8 0 00-8 8v2M21 10l-5 5m5-5l-5-5" /></svg>
-                        </button>
-                    </div>
-                    <div className="w-[1px] h-8 bg-white/10 my-1" />
-                    <button onClick={() => applyLayout('centered')} className="px-5 py-2 hover:bg-white/10 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] text-white/50 hover:text-white transition-all">Solo</button>
-                    <button onClick={() => applyLayout('pair')} className="px-5 py-2 hover:bg-white/10 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] text-white/50 hover:text-white transition-all">Pair</button>
-                    <button onClick={() => applyLayout('triptych')} className="px-5 py-2 hover:bg-white/10 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] text-white/50 hover:text-white transition-all">Tri</button>
-                    <div className="w-[1px] h-8 bg-white/5 my-1" />
-                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full">
-                        <button onClick={() => { setSelectedFrameId(null); setShowPhotoPicker(true); setMultiSelectMode(false); }} className="hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-full text-[9px] uppercase font-black tracking-widest transition-all italic">Add Single</button>
-                        <button onClick={() => { setShowPhotoPicker(true); setMultiSelectMode(true); }} className="bg-white text-black px-5 py-2 rounded-full text-[9px] uppercase font-black tracking-widest transition-all shadow-xl font-playfair">Add Batch</button>
-                    </div>
-                    <div className="w-[1px] h-8 bg-white/10 my-1" />
-                    <button onClick={() => setIsPreview(true)} className="bg-white text-black px-6 py-2 rounded-full text-[10px] uppercase font-black tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all">Preview</button>
-                </div>
-            )}
-
-            {/* PREVIEW EXIT BUTTON */}
-            {isPreview && (
-                <button
-                    onClick={() => setIsPreview(false)}
-                    className="absolute top-10 right-10 z-[200] bg-white text-black px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all"
-                >
-                    Exit Preview
-                </button>
-            )}
-
-            {/* SIDEBAR SETTINGS */}
-            <AnimatePresence>
-                {selectedFrameId && customRoomSrc && !showPhotoPicker && !isPreview && (
-                    <motion.div
-                        initial={{ x: 300 }} animate={{ x: 0 }} exit={{ x: 300 }}
-                        className="absolute top-1/2 -translate-y-1/2 right-10 z-[100] w-64 bg-black/40 backdrop-blur-3xl border border-white/10 p-6 rounded-[32px] shadow-3xl"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black">Size</p>
-                            <div className="flex items-center gap-3">
-                                <span className="text-[10px] font-black text-white/60 tabular-nums">
-                                    {Math.round((currentFrames.find(it => it.id === selectedFrameId)?.scale || 1) * 100)}%
-                                </span>
-                                <button
-                                    onClick={() => updateFrame(selectedFrameId, { scale: 1.0 })}
-                                    className="text-[9px] uppercase font-black tracking-widest text-white/30 hover:text-white transition-colors"
-                                >
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-                        <div className="mb-6">
-                            <input
-                                type="range"
-                                min="0.2"
-                                max="3.0"
-                                step="0.01"
-                                value={currentFrames.find(it => it.id === selectedFrameId)?.scale || 1}
-                                onChange={(e) => {
-                                    let val = parseFloat(e.target.value);
-                                    // Magnetic snap to 100% (1.0)
-                                    if (val > 0.95 && val < 1.05) val = 1.0;
-                                    updateFrame(selectedFrameId, { scale: val }, false);
-                                }}
-                                onMouseUp={() => {
-                                    const item = currentFrames.find(it => it.id === selectedFrameId);
-                                    if (item) updateFrame(selectedFrameId, { scale: item.scale }, true);
-                                }}
-                                className="w-full accent-white h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <div className="flex justify-between mt-4">
-                                {[
-                                    { label: 'S', val: 0.5 },
-                                    { label: 'M', val: 1.0 },
-                                    { label: 'L', val: 1.5 },
-                                    { label: 'XL', val: 2.5 }
-                                ].map((p) => (
-                                    <button
-                                        key={p.label}
-                                        onClick={() => updateFrame(selectedFrameId, { scale: p.val })}
-                                        className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all ${Math.abs((currentFrames.find(it => it.id === selectedFrameId)?.scale || 1) - p.val) < 0.05 ? 'bg-white text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black mb-6">Ratio</p>
-                        <div className="grid grid-cols-2 gap-2 mb-8">
-                            {['auto', 'square', 'wide', 'tall'].map((ratio) => (
-                                <button
-                                    key={ratio}
-                                    onClick={() => updateFrame(selectedFrameId, { aspectOverride: ratio as any })}
-                                    className={`px-3 py-2 rounded-xl text-[9px] uppercase font-bold tracking-widest transition-all ${(currentFrames.find(it => it.id === selectedFrameId)?.aspectOverride || 'auto') === ratio ? 'bg-white text-black font-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
-                                >
-                                    {ratio}
-                                </button>
-                            ))}
-                        </div>
-
-                        <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 font-black mb-6">Series</p>
-                        <div className="flex flex-col gap-6 max-h-[40vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
-                            {(['Modern', 'Wooden', 'Industrial', 'Gallery'] as const).map((cat) => (
-                                <div key={cat}>
-                                    <p className="text-[8px] uppercase tracking-[0.3em] text-white/20 font-bold mb-3 px-2">{cat}</p>
-                                    <div className="flex flex-col gap-1.5">
-                                        {(Object.keys(FRAMES) as FrameType[]).filter(f => FRAMES[f].category === cat).map((f) => (
-                                            <button key={f} onClick={() => updateFrame(selectedFrameId, { style: f })}
-                                                className={`flex items-center justify-between px-4 py-3 rounded-2xl text-[11px] font-bold tracking-wide transition-all ${currentFrames.find(it => it.id === selectedFrameId)?.style === f ? 'bg-white text-black font-black shadow-lg scale-[1.02]' : 'text-white/40 hover:bg-white/5'}`}>
-                                                {FRAMES[f].name}
-                                                {currentFrames.find(it => it.id === selectedFrameId)?.style === f && <div className="w-1.5 h-1.5 bg-black rounded-full" />}
-                                                {currentFrames.find(it => it.id === selectedFrameId)?.style !== f && <div className="w-1.5 h-1.5 bg-white/5 rounded-full" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="h-[1px] bg-white/10 my-8" />
-                        <label className="block cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl px-4 py-4 text-center transition-all group">
-                            <span className="text-[10px] uppercase tracking-widest text-white/60 font-black group-hover:text-white transition-colors">Change Room Photo</span>
-                            <input type="file" onChange={handleRoomUpload} className="hidden" accept="image/*" />
-                        </label>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* EXIT & LOGO */}
-            {!isPreview && (
-                <div className="absolute top-8 left-10 z-[100] flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={onClose} className="group bg-black/40 backdrop-blur-3xl border border-white/10 p-4 rounded-full hover:bg-white/10 transition-all">
-                        <svg className="w-5 h-5 group-hover:-translate-x-1 text-white/60 group-hover:text-white transition-all transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-                    </button>
-                    <div className="flex flex-col">
-                        <h2 className="text-[14px] uppercase tracking-[0.8em] text-white font-black italic">SMART STUDIO</h2>
-                        <span className="text-[8px] uppercase tracking-[0.4em] text-white/30 font-bold">Personal Wall Visualizer</span>
-                    </div>
-                </div>
-            )}
         </motion.div>
     );
 }

@@ -142,6 +142,7 @@ export default function PhotosManagement() {
                                                         alt={photo.alt}
                                                         fill
                                                         className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                                                     />
                                                     <div className="absolute inset-x-0 bottom-0 bg-black/60 backdrop-blur-sm p-4 translate-y-full group-hover:translate-y-0 transition-transform">
                                                         <p className="text-white text-xs font-medium truncate mb-1">{photo.alt || 'No Title'}</p>

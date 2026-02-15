@@ -25,6 +25,7 @@ export default function Gallery() {
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
     const [currentAlbum, setCurrentAlbum] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<string>('');
+    const [activeOrientation, setActiveOrientation] = useState<string>('All');
     const [showRoomViewer, setShowRoomViewer] = useState(false);
     const [galleryTitle, setGalleryTitle] = useState('Shutter Stories & Soulful Shots');
 
@@ -67,9 +68,12 @@ export default function Gallery() {
     });
 
     const displayPhotos = currentAlbum
-        ? (activeCategory === ''
-            ? albums[currentAlbum]
-            : albums[currentAlbum].filter(p => p.category === activeCategory))
+        ? albums[currentAlbum].filter(p => {
+            const matchesCategory = activeCategory === '' || p.category === activeCategory;
+            const orientation = p.aspect === 'tall' ? 'Portrait' : (p.aspect === 'wide' || p.aspect === 'ultraWide' ? 'Landscape' : 'Square');
+            const matchesOrientation = activeOrientation === 'All' || orientation === activeOrientation;
+            return matchesCategory && matchesOrientation;
+        })
         : [];
 
     const availableCategories = currentAlbum
@@ -81,6 +85,7 @@ export default function Gallery() {
             setActiveCategory(availableCategories[0]);
         } else if (!currentAlbum) {
             setActiveCategory('');
+            setActiveOrientation('All');
         }
     }, [currentAlbum, availableCategories, activeCategory]);
 
@@ -133,7 +138,7 @@ export default function Gallery() {
                     <div className="flex flex-wrap gap-4 items-center">
                         {currentAlbum && (
                             <button
-                                onClick={() => { setCurrentAlbum(null); setActiveCategory(''); }}
+                                onClick={() => { setCurrentAlbum(null); setActiveCategory(''); setActiveOrientation('All'); }}
                                 className="group flex items-center gap-3 text-white/60 hover:text-white transition-all text-[10px] uppercase tracking-widest font-black"
                             >
                                 <span className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-white/40 transition-all">←</span>
@@ -143,17 +148,39 @@ export default function Gallery() {
                     </div>
                 </div>
 
-                {currentAlbum && availableCategories.length > 1 && (
-                    <div className="flex flex-wrap gap-3 mb-12">
-                        {availableCategories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveCategory(category)}
-                                className={`px-8 py-3 rounded-full text-[10px] uppercase tracking-[0.3em] font-black transition-all duration-500 ${activeCategory === category ? 'bg-white text-black shadow-2xl scale-105' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
-                            >
-                                {category}
-                            </button>
-                        ))}
+                {currentAlbum && (
+                    <div className="flex flex-col gap-6 mb-12">
+                        {availableCategories.length > 1 && (
+                            <div className="flex flex-col gap-3">
+                                <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-bold ml-1">Collections</span>
+                                <div className="flex flex-wrap gap-3">
+                                    {availableCategories.map((category) => (
+                                        <button
+                                            key={category}
+                                            onClick={() => setActiveCategory(category)}
+                                            className={`px-8 py-3 rounded-full text-[10px] uppercase tracking-[0.3em] font-black transition-all duration-500 ${activeCategory === category ? 'bg-white text-black shadow-2xl scale-105' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
+                                        >
+                                            {category}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex flex-col gap-3">
+                            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-bold ml-1">Orientation</span>
+                            <div className="flex flex-wrap gap-3">
+                                {['All', 'Portrait', 'Landscape', 'Square'].map((orientation) => (
+                                    <button
+                                        key={orientation}
+                                        onClick={() => setActiveOrientation(orientation)}
+                                        className={`px-8 py-3 rounded-full text-[10px] uppercase tracking-[0.3em] font-black transition-all duration-500 ${activeOrientation === orientation ? 'bg-white text-black shadow-2xl scale-105' : 'bg-white/5 text-white/30 hover:bg-white/10'}`}
+                                    >
+                                        {orientation}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -277,6 +304,7 @@ export default function Gallery() {
                                     alt={selectedPhoto.alt}
                                     fill
                                     className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, 60vw"
                                 />
                             </div>
 

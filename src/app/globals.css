@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-playfair: var(--font-playfair), ui-serif, Georgia, serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--foreground));
+  --color-primary-foreground: hsl(var(--background));
+
+  --color-secondary: hsl(var(--border));
+  --color-secondary-foreground: hsl(var(--foreground));
+
+  --color-muted: hsl(var(--border) / 0.5);
+  --color-muted-foreground: hsl(var(--foreground) / 0.6);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--background));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--border));
+  --color-ring: hsl(var(--accent) / 0.5);
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+}
+
+@layer base {
+
+  :root,
+  [data-theme="midnight"] {
+    /* Midnight (Default Dark) */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --accent: 0 0% 98%;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --blob-1: 6 182 212;
+    /* Cyan */
+    --blob-2: 168 85 247;
+    /* Purple */
+    --blob-3: 236 72 153;
+    /* Pink */
+    --blob-opacity: 0.1;
+  }
+
+  [data-theme="golden"] {
+    --background: 35 30% 6%;
+    --foreground: 45 100% 90%;
+    --border: 35 30% 15%;
+    --accent: 40 80% 60%;
+    --card-bg: rgba(251, 191, 36, 0.05);
+    --blob-1: 180 83 9;
+    /* Amber */
+    --blob-2: 124 45 18;
+    /* Brown/Dark Orange */
+    --blob-3: 153 27 27;
+    /* Deep Red */
+    --blob-opacity: 0.15;
+  }
+
+  [data-theme="studio"] {
+    --background: 240 10% 98%;
+    --foreground: 240 10% 10%;
+    --border: 240 10% 85%;
+    --accent: 200 100% 50%;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --blob-1: 56 189 248;
+    /* Sky Blue */
+    --blob-2: 45 212 191;
+    /* Teal */
+    --blob-3: 255 255 255;
+    /* White */
+    --blob-opacity: 0.05;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: background-color 0.8s ease, color 0.8s ease;
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-playfair);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .glass {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+}

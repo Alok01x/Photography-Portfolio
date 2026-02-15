@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Load Test</title>
+</head>
+<body>
+    <h1>Direct Image Load Test</h1>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px;">
+        <div>
+            <h3>Image 1</h3>
+            <img src="https://ioecqexihaxfignbncym.supabase.co/storage/v1/object/public/portfolio-images/20250102_073804.jpg" 
+                 style="width: 100%; max-width: 400px;" 
+                 onload="console.log('Image 1 loaded')"
+                 onerror="console.error('Image 1 failed to load')">
+        </div>
+        <div>
+            <h3>Image 2</h3>
+            <img src="https://ioecqexihaxfignbncym.supabase.co/storage/v1/object/public/portfolio-images/Kasol-Kheergana%20Trek/1771062057613-20251002_170739.jpg" 
+                 style="width: 100%; max-width: 400px;"
+                 onload="console.log('Image 2 loaded')"
+                 onerror="console.error('Image 2 failed to load')">
+        </div>
+    </div>
+</body>
+</html>

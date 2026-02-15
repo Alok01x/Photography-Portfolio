@@ -288,10 +288,6 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                             exit={{ opacity: 0 }}
                             className={`absolute inset-0 z-0 bg-black flex items-center justify-center transition-all duration-500 w-full`}
                         >
-                            {/* Blurred background for fitting - Hidden on mobile for performance */}
-                            <div className="absolute inset-0 z-0 hidden md:block">
-                                <Image src={customRoomSrc} alt="" fill className="object-cover opacity-30 blur-2xl scale-110" sizes="10vw" />
-                            </div>
                             {/* Main contained image - NO PADDING to maximize fit */}
                             <div className="relative w-full h-full flex items-center justify-center">
                                 <Image src={customRoomSrc} alt="Custom Room" fill className="object-contain" sizes="(max-width: 768px) 100vw, 80vw" priority />
@@ -346,34 +342,44 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                                             setSelectedFrameId(item.id);
                                         }}
                                         onDragEnd={(e, info) => {
+                                            // Finalize the position in React state ONLY on drag end
                                             updateFrame(item.id, {
                                                 x: item.x + info.offset.x,
                                                 y: item.y + info.offset.y
                                             });
                                         }}
-                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        initial={{ scale: 0.8, opacity: 0 }}
                                         animate={{
                                             x: item.x,
                                             y: item.y,
-                                            scale: 1, // Reset transform scale
+                                            scale: 1,
                                             rotate: item.rotation,
                                             opacity: 1,
                                             zIndex: selected ? 50 : 40,
-                                            // Layout scaling for borders
                                             padding: `${fStyle.matting * (item.scale * 0.7)}px`,
-                                            transition: { type: 'spring', damping: 25, stiffness: 300, mass: 0.5 }
+                                            // Faster, lower-overhead transition for ALL devices, but even simpler for mobile logic
+                                            transition: {
+                                                type: 'spring',
+                                                damping: 30,
+                                                stiffness: 400,
+                                                mass: 0.5,
+                                                // Disable layout animations on mobile for smoother drags
+                                                layout: { duration: 0 }
+                                            }
                                         }}
-                                        exit={{ scale: 0.5, opacity: 0 }}
+                                        exit={{ scale: 0.8, opacity: 0 }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (!isPreview) setSelectedFrameId(item.id);
                                         }}
                                         className={`absolute pointer-events-auto will-change-transform ${isPreview ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} group ${fStyle.depth} ${fStyle.matColor}`}
                                         style={{
-                                            boxShadow: selected ? '0 0 0 2px rgba(255,255,255,0.5), 0 20px 40px rgba(0,0,0,0.4)' : undefined
+                                            boxShadow: selected ? '0 0 0 2px rgba(255,255,255,0.5), 0 20px 40px rgba(0,0,0,0.4)' : undefined,
+                                            // Ensure hardware acceleration
+                                            transform: 'translateZ(0)'
                                         }}
                                     >
-                                        <div className={`absolute inset-0 border-[12px] md:border-[20px] ${fStyle.border} shadow-inner pointer-events-none`} />
+                                        <div className={`absolute inset-0 border-[8px] md:border-[20px] ${fStyle.border} shadow-inner pointer-events-none`} />
 
                                         {/* Optional Inner Border for Double Matting */}
                                         {fStyle.innerBorder && (
@@ -382,45 +388,44 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
 
                                         <motion.div
                                             animate={{ width: (isFrameWide ? 400 : isFrameTall ? 240 : 300) * item.scale }}
-                                            transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.5 }}
+                                            transition={{ type: 'spring', damping: 30, stiffness: 400 }}
                                             className="relative"
                                         >
                                             <div className={`relative w-full overflow-hidden shadow-inner ${isFrameWide ? 'aspect-[3/2]' : isFrameTall ? 'aspect-[4/5]' : 'aspect-square'}`}>
-                                                <Image src={item.photo.src} alt={item.photo.alt} fill className="object-cover pointer-events-none" sizes="(max-width: 768px) 50vw, 33vw" />
+                                                <Image src={item.photo.src} alt={item.photo.alt} fill className="object-cover pointer-events-none" sizes="(max-width: 768px) 40vw, 30vw" />
                                             </div>
                                         </motion.div>
 
                                         <AnimatePresence>
                                             {selected && !isPreview && (
-                                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute -bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-50">
-                                                    <div className="flex gap-2 bg-black/60 backdrop-blur-xl border border-white/10 p-2 rounded-full shadow-2xl">
-                                                        <button onClick={(e) => { e.stopPropagation(); removeFrame(item.id); }} className="bg-red-500/80 text-white p-2 rounded-full hover:bg-red-600 transition-colors">
-                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute -bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-50">
+                                                    <div className="flex gap-1 sm:gap-2 bg-black/80 backdrop-blur-md border border-white/10 p-2 rounded-full shadow-2xl">
+                                                        <button onClick={(e) => { e.stopPropagation(); removeFrame(item.id); }} className="bg-red-500/90 text-white p-2 sm:p-3 rounded-full hover:bg-red-600 transition-colors">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M6 18L18 6M6 6l12 12" /></svg>
                                                         </button>
                                                         <div className="w-[1px] h-6 bg-white/10 mx-1" />
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setShowPhotoPicker(true); setMultiSelectMode(false); }}
-                                                            className="flex items-center gap-2 px-4 py-1.5 text-white/80 hover:text-white transition-colors"
+                                                            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 text-white/90 hover:text-white transition-colors"
                                                         >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                            <span className="text-[9px] uppercase font-black tracking-widest">Swap</span>
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                            <span className="text-[10px] uppercase font-black tracking-widest">Swap</span>
                                                         </button>
                                                         <div className="w-[1px] h-6 bg-white/10 mx-1" />
-                                                        <div className="w-[1px] h-6 bg-white/10 mx-1" />
                                                         <div className="flex gap-1">
-                                                            <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { scale: Math.max(0.2, item.scale - 0.1) }); }} className="text-white/60 hover:text-white p-2 transition-colors">
-                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M20 12H4" /></svg>
+                                                            <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { scale: Math.max(0.2, item.scale - 0.1) }); }} className="text-white/80 hover:text-white p-2 transition-colors">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M20 12H4" /></svg>
                                                             </button>
-                                                            <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { scale: Math.min(2.0, item.scale + 0.1) }); }} className="text-white/60 hover:text-white p-2 transition-colors">
-                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                                                            <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { scale: Math.min(2.0, item.scale + 0.1) }); }} className="text-white/80 hover:text-white p-2 transition-colors">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
                                                             </button>
                                                         </div>
                                                         <div className="w-[1px] h-6 bg-white/10 mx-1" />
-                                                        <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { rotation: item.rotation - 5 }); }} className="text-white/60 hover:text-white p-2 transition-colors">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5" /></svg>
+                                                        <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { rotation: item.rotation - 5 }); }} className="text-white/80 hover:text-white p-2 transition-colors">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5" /></svg>
                                                         </button>
-                                                        <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { rotation: item.rotation + 5 }); }} className="text-white/60 hover:text-white p-2 transition-colors">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 10H11a8 8 0 00-8 8v2M21 10l-5 5m5-5l-5-5" /></svg>
+                                                        <button onClick={(e) => { e.stopPropagation(); updateFrame(item.id, { rotation: item.rotation + 5 }); }} className="text-white/80 hover:text-white p-2 transition-colors">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 10H11a8 8 0 00-8 8v2M21 10l-5 5m5-5l-5-5" /></svg>
                                                         </button>
                                                     </div>
                                                 </motion.div>
@@ -458,9 +463,9 @@ export default function RoomViewer({ photo, initialPhotos = [], allPhotos = [], 
                 )}
             </div>
 
-            {/* Sidebar Simple Replacement */}
+            {/* Sidebar Simple Replacement - Unmount on mobile during preview for performance */}
             {customRoomSrc && !showPhotoPicker && (
-                <div className={`relative w-full md:w-[400px] h-[55%] md:h-full bg-black z-[200] border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-none transition-all duration-500 ${isPreview ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`} onClick={(e) => e.stopPropagation()}>
+                <div className={`relative w-full md:w-[400px] h-[55%] md:h-full bg-black z-[200] border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-none transition-all duration-500 ${isPreview ? 'opacity-0 pointer-events-none hidden md:flex' : 'opacity-100 pointer-events-auto flex'}`} onClick={(e) => e.stopPropagation()}>
                     <div className="w-16 h-1 bg-white/20 rounded-full mx-auto mb-6 md:hidden flex-shrink-0" />
 
                     <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide flex flex-col gap-10">

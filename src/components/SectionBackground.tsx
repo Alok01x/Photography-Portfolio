@@ -10,7 +10,7 @@ interface SectionBackgroundProps {
 export default function SectionBackground({ children, className = '' }: SectionBackgroundProps) {
     return (
         <div className={`relative min-h-screen w-full overflow-hidden bg-background transition-colors duration-1000 ${className}`}>
-            {/* Animated Mesh Blobs */}
+            {/* Animated Mesh Blobs - Optimized for Mobile */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-1000" style={{ opacity: 'var(--blob-opacity, 0.1)' }}>
                 {/* Blob 1 */}
                 <motion.div
@@ -24,8 +24,13 @@ export default function SectionBackground({ children, className = '' }: SectionB
                         repeat: Infinity,
                         ease: "linear"
                     }}
-                    className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full blur-[120px] transition-colors duration-1000 shadow-[0_0_200px_rgba(var(--blob-1),0.2)]"
-                    style={{ backgroundColor: 'rgb(var(--blob-1))' }}
+                    // Optimization: Use simpler blur and shadow on mobile, disable animation logic if needed
+                    className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full blur-[60px] md:blur-[120px] transition-colors duration-1000 shadow-[0_0_100px_rgba(var(--blob-1),0.1)] md:shadow-[0_0_200px_rgba(var(--blob-1),0.2)]"
+                    style={{
+                        backgroundColor: 'rgb(var(--blob-1))',
+                        // Disable heavy animation on mobile to save CPU
+                        animation: 'none'
+                    }}
                 />
 
                 {/* Blob 2 */}
@@ -40,7 +45,7 @@ export default function SectionBackground({ children, className = '' }: SectionB
                         repeat: Infinity,
                         ease: "linear"
                     }}
-                    className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-colors duration-1000 shadow-[0_0_200px_rgba(var(--blob-2),0.2)]"
+                    className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full blur-[60px] md:blur-[120px] transition-colors duration-1000 shadow-[0_0_100px_rgba(var(--blob-2),0.1)] md:shadow-[0_0_200px_rgba(var(--blob-2),0.2)]"
                     style={{ backgroundColor: 'rgb(var(--blob-2))' }}
                 />
 
@@ -56,7 +61,7 @@ export default function SectionBackground({ children, className = '' }: SectionB
                         repeat: Infinity,
                         ease: "linear"
                     }}
-                    className="absolute -bottom-[10%] left-[20%] w-[45%] h-[45%] rounded-full blur-[120px] transition-colors duration-1000 shadow-[0_0_200px_rgba(var(--blob-3),0.2)]"
+                    className="absolute -bottom-[10%] left-[20%] w-[45%] h-[45%] rounded-full blur-[60px] md:blur-[120px] transition-colors duration-1000 shadow-[0_0_100px_rgba(var(--blob-3),0.1)] md:shadow-[0_0_200px_rgba(var(--blob-3),0.2)]"
                     style={{ backgroundColor: 'rgb(var(--blob-3))' }}
                 />
             </div>

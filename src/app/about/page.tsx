@@ -43,7 +43,7 @@ export default function About() {
                         <motion.div
                             initial={{ opacity: 0, x: -50 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: 0.5 }}
                             className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-foreground/5 w-full shadow-[0_0_50px_rgba(0,0,0,0.2)] dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-foreground/10 group"
                         >
                             <Image
@@ -60,7 +60,7 @@ export default function About() {
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: 0.5 }}
                             className="space-y-10"
                         >
                             <div className="space-y-4">

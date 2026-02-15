@@ -52,7 +52,7 @@ export default function Contact() {
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
+                        transition={{ duration: 0.5 }}
                         className="space-y-12"
                     >
                         <div className="space-y-6">
@@ -106,9 +106,9 @@ export default function Contact() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
                     >
-                        <form className="relative bg-foreground/5 p-8 lg:p-14 rounded-[3rem] border border-foreground/10 space-y-8 backdrop-blur-3xl shadow-2xl" onSubmit={handleSubmit}>
+                        <form className="relative bg-foreground/5 p-8 lg:p-14 rounded-[3rem] border border-foreground/10 space-y-8 backdrop-blur-md md:backdrop-blur-3xl shadow-2xl" onSubmit={handleSubmit}>
                             {/* Inner glow for form */}
                             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
 

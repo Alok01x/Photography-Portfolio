@@ -118,7 +118,7 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
         initial={{ y: -100, opacity: 0 }}
         animate={mounted ? { y: 0, opacity: 1 } : {}}
         transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-        className={`pointer-events-auto relative flex items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded-full border border-foreground/10 shadow-2xl backdrop-blur-3xl transition-all duration-500 ${scrolled ? 'bg-background/80 scale-95 shadow-xl' : 'bg-background/5 scale-100'
+        className={`pointer-events-auto relative flex items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded-full border border-foreground/10 shadow-2xl backdrop-blur-md md:backdrop-blur-3xl transition-all duration-500 ${scrolled ? 'bg-background/80 scale-95 shadow-xl' : 'bg-background/5 scale-100'
           }`}
       >
         {/* Subtle inner glow */}
@@ -179,7 +179,7 @@ export default function Navbar({ currentTheme = 'midnight', onThemeChange }: Nav
               initial={{ opacity: 0, scale: 0.95, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="absolute top-[120%] left-0 w-full bg-background/95 backdrop-blur-3xl border border-foreground/10 rounded-[2.5rem] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col gap-1.5 md:hidden z-50"
+              className="absolute top-[120%] left-0 w-full bg-background/95 backdrop-blur-md border border-foreground/10 rounded-[2.5rem] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col gap-1.5 md:hidden z-50"
             >
               {navLinks.map((link) => (
                 <Link

@@ -70,7 +70,7 @@ export default function ProfilePage() {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 1, ease: "easeOut" }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
                                 className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden group shadow-2xl border border-white/10"
                             >
                                 <Image
@@ -89,8 +89,8 @@ export default function ProfilePage() {
                             <motion.div
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
-                                className="relative bg-foreground/5 p-10 rounded-[2rem] border border-foreground/10 backdrop-blur-xl overflow-hidden"
+                                transition={{ duration: 0.5 }}
+                                className="relative bg-foreground/5 p-10 rounded-[2rem] border border-foreground/10 backdrop-blur-md md:backdrop-blur-xl overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl -mr-10 -mt-10" />
                                 <h3 className="text-[10px] uppercase tracking-[0.4em] font-bold text-cyan-500 dark:text-cyan-400 mb-8">Expertise</h3>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                                 <motion.h1
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.8, delay: 0.2 }}
+                                    transition={{ duration: 0.5, delay: 0.1 }}
                                     className="text-6xl lg:text-9xl font-bold tracking-tighter leading-[0.9] text-foreground"
                                 >
                                     {profileData.name}
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 whileInView={{ opacity: 1 }}
-                                transition={{ duration: 1 }}
+                                transition={{ duration: 0.6 }}
                                 className="max-w-2xl"
                             >
                                 <p className="text-xl lg:text-2xl leading-relaxed font-light text-foreground/80 font-inter italic whitespace-pre-line">
@@ -155,8 +155,8 @@ export default function ProfilePage() {
                             <motion.div
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
-                                className="relative bg-foreground/5 p-12 lg:p-16 rounded-[3rem] border border-foreground/10 backdrop-blur-3xl overflow-hidden shadow-2xl"
+                                transition={{ duration: 0.5 }}
+                                className="relative bg-foreground/5 p-12 lg:p-16 rounded-[3rem] border border-foreground/10 backdrop-blur-md md:backdrop-blur-3xl overflow-hidden shadow-2xl"
                             >
                                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 blur-3xl -ml-20 -mb-20" />
                                 <div className="flex justify-between items-center mb-16">
